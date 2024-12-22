@@ -40,9 +40,9 @@ au sein de vos conteneurs.
 
 
 ## Execution de l'application
-Rendez vous dans répertoire client et tapez :
+Rendez vous dans le répertoire client et tapez:
 ```
-yarn build
+yarn install et ensuite yarn build
 ```
 
 Rendez vous a la racine du projet ou se trouve le fichier docker-compose.yml et
