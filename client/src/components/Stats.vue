@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button v-on:click="Stats()">Statistiques</button>
+    <center><button v-on:click="Stats()">Statistiques</button></center>
     <div class="cards">
       <Card
         v-for="game in games"

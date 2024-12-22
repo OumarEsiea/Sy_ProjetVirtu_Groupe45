@@ -3,7 +3,7 @@
 <center>{{ msg }}<br><br>
         {{ date }}
     </center>
-
+<br>
     <center>Veuilez appuyer sur le bouton ci-dessous pour voir vos statistiques</center>
         <Stats></Stats>
     

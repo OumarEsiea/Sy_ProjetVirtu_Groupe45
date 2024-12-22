@@ -1,5 +1,7 @@
 import Axios from "./caller_service";
 
+// Definition des methodes CRUD
+
 let create = (obj) =>{
     return Axios.post('/register',obj)
 }
@@ -7,10 +9,10 @@ let create = (obj) =>{
 let read = async () => {
     try {
         const response = await Axios.get('/games');
-        return response.data; // Retourne directement les données
+        return response.data;
     } catch (error) {
         console.error("Erreur lors de la récupération des jeux :", error);
-        throw error; // Permet à l'appelant de gérer l'erreur
+        throw error;
     }
 };
 
@@ -25,7 +27,7 @@ let remove = (id) =>{
       })
 }
 /*
-let update = () =>{
+let update = () =>{ //Non complété par manque de temps
     Axios.put()
 }
     */

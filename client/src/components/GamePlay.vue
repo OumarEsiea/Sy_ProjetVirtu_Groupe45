@@ -118,7 +118,7 @@
     },
 
     Init(){
-
+      
       fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${Math.floor((Math.random() * 10) + 1)}&limit=${this.Jeu}`)
                   .then(res => res.json())
                   .then(finalRes => {      
@@ -248,7 +248,7 @@
       const intervalId = setInterval(() => {
         this.Tps_Memo--;
         if (this.Tps_Memo <= 0) {
-            clearInterval(intervalId); // Arrête l'intervalle
+            clearInterval(intervalId);
         }
         }, 1000);
     },

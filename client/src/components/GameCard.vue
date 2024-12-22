@@ -30,8 +30,8 @@ export default {
       if (!this.watcherNeeded) return;
       if (newValue === 'Mauvais') {
         setTimeout(() => {
-          this.card = this.Pokeball; // Retourne la carte
-          this.isActive = true; // Réactive la carte après délai
+          this.card = this.Pokeball;
+          this.isActive = true; 
         }, 1000);
       }
     },
@@ -47,10 +47,3 @@ export default {
   }
 };
 </script>
-
-<style>
-/* Classe pour rendre une carte visuellement "inactive" */
-.inactive {
-  background-color: red; /* Réduit la visibilité pour indiquer qu'elle est bloquée */
-}
-</style>
