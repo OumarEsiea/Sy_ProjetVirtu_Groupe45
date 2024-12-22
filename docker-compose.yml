@@ -1,0 +1,65 @@
+# Pour tester si tout fonctionne il faut :
+# se placer dans le repertoire le plus haut
+# lancer : docker-compose up
+# ouvrir une page : localhost:80
+
+services:
+
+  database:
+    build:
+      context: ./database
+      dockerfile: dockerfile.mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: myrootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    ports:
+      - "3306"  
+    volumes:
+      - ./mydata:/var/lib/mysql
+      - ./database/Init.sql:/docker-entrypoint-initdb.d/Init.sql
+    networks:
+      - backendenetwork
+    
+  back:
+    build:
+      context: ./server
+      dockerfile: dockerfile.node
+    environment:
+      DB_HOST: database  
+      DB_USER: test
+      DB_PASSWORD: test
+      #MYSQL_ROOT_PASSWORD: myrootpassword
+      DB_NAME: mydatabase
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server;:/app      #ou server ;:
+    networks:
+      - backendenetwork
+      - frontendenetwork
+    depends_on:
+      - database
+
+  front:
+    build:
+      context: ./client
+      dockerfile: dockerfile.nginx
+    environment:
+      REACT_APP_BACKEND_URL: http://back:3001
+    ports:
+      - "80:8080"
+    networks:
+      - frontendenetwork
+    depends_on:
+      - back
+
+networks:
+  backendenetwork:
+  frontendenetwork:
+
+volumes:
+  data:
+  nodejs:
+

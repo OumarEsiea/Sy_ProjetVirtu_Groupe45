@@ -1,0 +1,140 @@
+body {
+    background-color:orange;
+    font-family: Arial, sans-serif;
+}
+
+main {
+    background-color: lightgray;
+    padding: 10px;
+}
+
+section{
+    text-align:center;
+    background-color: white;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+h1 {
+    align-items: center;
+    font-weight: bold;
+}
+
+.flex-container {
+    flex-flow: row wrap;
+    justify-content: space-around;
+    padding: 10px;
+}
+
+.flex-item {
+    
+    padding: 5px;
+    width: fit-content;
+    height: 150px;
+    margin: 20px;
+    border-radius: 10px;
+    background-color: gray;
+}
+
+img {
+    display: flex;
+    margin: auto;
+    width: 100%;
+}
+
+.toolbar {
+    text-align: center;
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 10;
+    display: flex;
+    justify-content: center;
+  }
+
+li {
+    margin: 10px;
+}
+
+.toolbar button{
+        font-size: 20px;
+        background-color: white;
+        color: black;
+        border-radius: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+}
+
+footer{
+    color: white;
+    text-align: center;
+    padding-top: 20px;
+    font-weight: bold;
+}
+
+input {
+    text-align: center;
+    border-width: 5px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.Jeu{
+    padding: 10px;
+    background-color: orange;
+    font-weight: bold;
+    border-radius: 10px;    
+    width: 100px;
+    
+}
+label{
+    font-weight: bolder;
+    font-style: italic;
+    background-color: orange;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#Message{
+    font-weight: bold;
+    font-style: italic;
+    color: red;
+}
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+.fade{
+    animation:fade 1500ms infinite;
+    -webkit-animation:fade 1500ms infinite;
+    font-weight:bold;
+}  
+
+.Appear{
+  animation: fade  1500;
+  -webkit-animation:fade 1500ms; 
+  animation-delay: 2s;
+}
+  @keyframes fade {
+    from { opacity: 1.0; }
+    50% { opacity: 0.2; }
+    to { opacity: 1.0; }
+  }
+
+  .Alerte {
+    animation: blink 1s steps(1, end) infinite;
+    color: red;
+    font-size: large;
+    font-weight: bold;
+  }

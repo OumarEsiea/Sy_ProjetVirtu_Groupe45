@@ -1,0 +1,14 @@
+# Utiliser l'image officielle de MySQL 5.6
+FROM mysql:5.6
+
+# Copier le fichier init.sql dans le répertoire d'initialisation de MySQL
+COPY Init.sql /docker-entrypoint-initdb.d/
+
+# Définir les variables d'environnement pour configurer la base de données
+ENV MYSQL_ROOT_PASSWORD=myrootpassword
+ENV MYSQL_DATABASE=MemoryGame
+ENV MYSQL_USER=test
+ENV MYSQL_PASSWORD=test
+
+# Exposer le port MySQL
+EXPOSE 3306

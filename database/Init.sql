@@ -1,0 +1,14 @@
+CREATE DATABASE IF NOT EXISTS crudgames;
+USE crudgames;
+
+CREATE TABLE IF NOT EXISTS games (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Victoire INT NOT NULL,
+    Defaite INT NOT NULL,
+    BonnePaire INT NOT NULL,
+    FaussePaire INT NOT NULL
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON crudgames.* TO 'test'@'%';
+
+FLUSH PRIVILEGES;
