@@ -6,7 +6,17 @@ CREATE TABLE IF NOT EXISTS games (
     Victoire INT NOT NULL,
     Defaite INT NOT NULL,
     BonnePaire INT NOT NULL,
-    FaussePaire INT NOT NULL
+    FaussePaire INT NOT NULL,
+    IdCarte1 INT NOT NULL,
+    IdCarte2 INT NOT NULL,
+    IdCarte3 INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cards (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idpokemon INT NOT NULL,
+    Nom VARCHAR(255) NOT NULL,
+    ImGSrc VARCHAR(255) NOT NULL
 );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON crudgames.* TO 'test'@'%';

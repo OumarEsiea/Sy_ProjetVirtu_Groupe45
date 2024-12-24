@@ -17,7 +17,8 @@
                         <TransitionGroup tag="ul" name="rubberband">
                           <li v-for="Paires in Paires_trouve" :key="Paires.id">
                             {{ Paires.Nom }}
-                              <img :src="Paires.ImGSrc" @load="PokemonCry(Paires)">
+                              <!--- <img :src="Paires.ImGSrc" @load="PokemonCry(Paires)"> -->
+                              <img :src="Paires.ImGSrc">
                           </li>
                         </TransitionGroup>
                    </div>
@@ -97,13 +98,19 @@
               WrongPaire : [],
               MauvaisePaire : 0,
               blocage: false,
-              NeedWatcher: true
+              NeedWatcher: true,
+              offset: 0,
+              limit: 30,
+              maxOffset: 300, // On va jusqu'à l'offset 300
+              Description: [],
+              isLoading: false,
           }
       },
 
   methods: {
 
     startGame() {
+      this.Ajout()
       this.isTrue = true
       this.Init()
       setTimeout(() => {
@@ -117,26 +124,89 @@
       }, 1000)
     },
 
+    async fetchPokemons(offset) {
+  try {
+    const response = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${this.limit}`
+    );
+    const data = await response.json();
+
+    // Créer une liste de promesses pour récupérer les détails de chaque Pokémon
+    const promises = data.results.map(async (pokemon) => {
+      const pokemonDetailsResponse = await fetch(pokemon.url);
+      const pokemonDetails = await pokemonDetailsResponse.json();
+
+      return {
+        Nom: pokemonDetails.name,
+        Capacites: pokemonDetails.moves[0]?.move.name,
+        Ability_name: pokemonDetails.abilities[0]?.ability.name,
+        ImGSrc: pokemonDetails.sprites.front_default,
+        ImgArtwork: pokemonDetails.sprites.other["official-artwork"].front_default,
+        idpokemon: pokemonDetails.id,
+      };
+    });
+
+    // Attendre la résolution de toutes les promesses avant de renvoyer les résultats
+    const pokemons = await Promise.all(promises);
+    return pokemons; // Renvoie les Pokémon extraits
+  } catch (error) {
+    console.error("Erreur lors de la récupération des Pokémon :", error);
+    return [];
+  }
+  },
+
+  async Ajout() {
+  this.isLoading = true;
+  this.Description = []; // Réinitialisation
+
+  try {
+    while (this.offset < this.maxOffset) {
+      console.log(`Récupération des Pokémon à partir de l'offset ${this.offset}...`);
+
+      // Récupérer les Pokémon pour l'offset courant
+      const pokemons = this.fetchPokemons(this.offset);
+
+      // Ajoute chaque Pokémon dans la base via `crud_ops.addDatabase`
+      for (const pokemon of pokemons) {
+        console.log("Ajout dans la base :", pokemon);
+       crud_ops.addDatabase(pokemon); // Assurez-vous que l'ajout est terminé avant de passer au suivant
+      }
+
+      // Ajout dans la Description locale (optionnel)
+      this.Description.push(...pokemons);
+
+      // Passe à l'offset suivant
+      this.offset += this.limit;
+    }
+
+    console.log("Tous les Pokémon ont été ajoutés !");
+  } catch (error) {
+    console.error("Erreur lors de l'ajout des Pokémon :", error);
+  } finally {
+    this.isLoading = false;
+  }
+},
+
     Init(){
       
-      fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${Math.floor((Math.random() * 10) + 1)}&limit=${this.Jeu}`)
-                  .then(res => res.json())
-                  .then(finalRes => {      
-                      const pokemons = finalRes.results.map(pokemon => fetch(pokemon.url)
-                      .then(res=> res.json()
-                      .then(finalRes2 => {
-                      const Pokemon = {}
-                      Pokemon.Nom = finalRes2.name
-                      Pokemon.ImGSrc = finalRes2.sprites.front_default
-                      Pokemon.ImgArtwork = finalRes2.sprites.other["official-artwork"].front_default
-                      Pokemon.id = finalRes2.id 
-                      this.game.push(Pokemon)
-                      this.game.push(Pokemon)           
-                      console.log(Pokemon)
-                        })
-                     ))
-                    Promise.all(pokemons)
-                  })
+      fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${Math.floor((Math.random() * 100) + 1)}&limit=${this.Jeu}`)
+            .then(res => res.json())
+            .then(finalRes => {      
+                const pokemons = finalRes.results.map(pokemon => fetch(pokemon.url)
+                .then(res=> res.json()
+                  .then(finalRes2 => {
+                    const Pokemon = {}
+                    Pokemon.Nom = finalRes2.name
+                    Pokemon.ImGSrc = finalRes2.sprites.front_default
+                    Pokemon.ImgArtwork = finalRes2.sprites.other["official-artwork"].front_default
+                    Pokemon.id = finalRes2.id 
+                    this.game.push(Pokemon)
+                    this.game.push(Pokemon)           
+                  console.log(Pokemon)
+                })
+            ))
+          Promise.all(pokemons)
+        })
   },
 
     Shuffle(){
@@ -263,12 +333,18 @@
       Resume.Defaite = this.Defaite
       Resume.BonnePaire = this.TmpTrouve.length
       Resume.FaussePaire = this.MauvaisePaire
-      //this.Paires_trouve.forEach(elem => elem.)
       
+      for (let i = 0; i < this.TmpTrouve.length; i++) {
+      Resume[`IdCarte${i + 1}`] = this.TmpTrouve[i].id;
+      console.log(`Resume.IdCarte${i + 1}:`, Resume[`IdCarte${i + 1}`]);
+    }
+      console.log(this.TmpTrouve)
+   
+    console.log(Resume)
       crud_ops.create(Resume)
      
     } 
-  }
+  },
 }
   </script>
 

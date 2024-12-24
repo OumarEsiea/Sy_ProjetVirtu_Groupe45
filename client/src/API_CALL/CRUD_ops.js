@@ -6,6 +6,10 @@ let create = (obj) =>{
     return Axios.post('/register',obj)
 }
 
+let addDatabase = (obj)=>{
+    return Axios.post('/addDatabase',obj)
+}
+
 let read = async () => {
     try {
         const response = await Axios.get('/games');
@@ -34,6 +38,7 @@ let update = () =>{ //Non complété par manque de temps
 
 export const crud_ops = {
     create,
+    addDatabase,
     read,
     remove
 }
