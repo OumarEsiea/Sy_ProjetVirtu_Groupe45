@@ -38,23 +38,6 @@ app.post("/register", (req, res) => {
   })
 });
 
-app.post('/addDatabase',(req,res)=>{
-    const { idpokemon } = req.body
-    const { Nom } = req.body
-    const { ImGSrc } = req.body
-
-    let sql = "INSERT INTO cards (idpokemon, Nom, ImGSrc) VALUES (?,?,?)" //Adaptation des valeurs avec ma base de donnes
-    db.query(sql, [idpokemon, Nom, ImGSrc], (err,result) =>{
-      if (err) {
-          console.log(err);
-      }else{
-          console.log(result);
-      }
-    })
-
-    console.log("Creation de la base")
-})
-
 app.get("/games", (req, res) => {
 
     let sql = "SELECT * FROM games";
@@ -64,12 +47,33 @@ app.get("/games", (req, res) => {
         }else{
             res.send(result);
         }
-
     })
 });
 
-app.get("/pokemonList",(req,res)=>{
-    res.sendFile(filePath)
+app.get("/pokemonList/:id",(req,res)=>{
+    const { id } = req.params;
+
+let sql = `
+    SELECT 
+        g.id, 
+        c1.ImGSrc AS ImGSrcCarte1, 
+        c2.ImGSrc AS ImGSrcCarte2, 
+        c3.ImGSrc AS ImGSrcCarte3
+    FROM games g
+    JOIN cards c1 ON g.IdCarte1 = c1.id
+    JOIN cards c2 ON g.IdCarte2 = c2.id
+    JOIN cards c3 ON g.IdCarte3 = c3.id
+    WHERE g.id = ?
+`;
+
+db.query(sql, [id], (err, result) => {
+    if (err) {
+        console.error("Erreur lors de l'exécution de la requête :", err);
+        res.status(500).send("Erreur serveur");
+    } else {
+        res.send(result);
+    }
+    });
 })
 
 app.delete("/delete/:index", (req,res) =>{

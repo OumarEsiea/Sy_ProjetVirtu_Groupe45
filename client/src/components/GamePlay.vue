@@ -40,7 +40,7 @@
   </template>
 
   <script>
-  import GameCard from './GameCard.vue'
+import GameCard from './GameCard.vue'
   import {crud_ops} from "@/API_CALL/CRUD_ops"
   
   export default{
@@ -99,9 +99,9 @@
               MauvaisePaire : 0,
               blocage: false,
               NeedWatcher: true,
-              offset: 0,
-              limit: 30,
-              maxOffset: 300, // On va jusqu'à l'offset 300
+              offset: 1,
+              limit: 1000,
+              maxOffset: 550, // On va jusqu'à l'offset 300
               Description: [],
               isLoading: false,
           }
@@ -110,7 +110,6 @@
   methods: {
 
     startGame() {
-      this.Ajout()
       this.isTrue = true
       this.Init()
       setTimeout(() => {
@@ -123,69 +122,6 @@
         }, 1000)
       }, 1000)
     },
-
-    async fetchPokemons(offset) {
-  try {
-    const response = await fetch(
-      `https://pokeapi.co/api/v2/pokemon/?offset=${offset}&limit=${this.limit}`
-    );
-    const data = await response.json();
-
-    // Créer une liste de promesses pour récupérer les détails de chaque Pokémon
-    const promises = data.results.map(async (pokemon) => {
-      const pokemonDetailsResponse = await fetch(pokemon.url);
-      const pokemonDetails = await pokemonDetailsResponse.json();
-
-      return {
-        Nom: pokemonDetails.name,
-        Capacites: pokemonDetails.moves[0]?.move.name,
-        Ability_name: pokemonDetails.abilities[0]?.ability.name,
-        ImGSrc: pokemonDetails.sprites.front_default,
-        ImgArtwork: pokemonDetails.sprites.other["official-artwork"].front_default,
-        idpokemon: pokemonDetails.id,
-      };
-    });
-
-    // Attendre la résolution de toutes les promesses avant de renvoyer les résultats
-    const pokemons = await Promise.all(promises);
-    return pokemons; // Renvoie les Pokémon extraits
-  } catch (error) {
-    console.error("Erreur lors de la récupération des Pokémon :", error);
-    return [];
-  }
-  },
-
-  async Ajout() {
-  this.isLoading = true;
-  this.Description = []; // Réinitialisation
-
-  try {
-    while (this.offset < this.maxOffset) {
-      console.log(`Récupération des Pokémon à partir de l'offset ${this.offset}...`);
-
-      // Récupérer les Pokémon pour l'offset courant
-      const pokemons = this.fetchPokemons(this.offset);
-
-      // Ajoute chaque Pokémon dans la base via `crud_ops.addDatabase`
-      for (const pokemon of pokemons) {
-        console.log("Ajout dans la base :", pokemon);
-       crud_ops.addDatabase(pokemon); // Assurez-vous que l'ajout est terminé avant de passer au suivant
-      }
-
-      // Ajout dans la Description locale (optionnel)
-      this.Description.push(...pokemons);
-
-      // Passe à l'offset suivant
-      this.offset += this.limit;
-    }
-
-    console.log("Tous les Pokémon ont été ajoutés !");
-  } catch (error) {
-    console.error("Erreur lors de l'ajout des Pokémon :", error);
-  } finally {
-    this.isLoading = false;
-  }
-},
 
     Init(){
       
@@ -273,13 +209,12 @@
   if (this.Paires === 3) {
     this.PartieFinished = true;
     this.Victoire = true;
-    this.Defaite = false
+    //this.Defaite = false
     this.AfficherPairesTrouvees();
   }
 
   if (this.Vies === 0) {
     this.PartieFinished = true;
-    this.Victoire = false;
     this.Defaite = true
     window.alert('Vous avez épuisé toutes vos tentatives.');
     location.reload();
@@ -295,7 +230,7 @@
   },
 
   PokemonCry(pokemon){                      
-   
+   /* https://play.pokemonshowdown.com/audio/cries/${pokemon.Nom}.ogg */
     const audiourl = require(`@/assets/Audio/Cri_00${pokemon.id}_DP.ogg`)
                
     const audio = new Audio(audiourl)
@@ -336,11 +271,9 @@
       
       for (let i = 0; i < this.TmpTrouve.length; i++) {
       Resume[`IdCarte${i + 1}`] = this.TmpTrouve[i].id;
-      console.log(`Resume.IdCarte${i + 1}:`, Resume[`IdCarte${i + 1}`]);
     }
-      console.log(this.TmpTrouve)
    
-    console.log(Resume)
+    console.log("Enregistrement dans la partie.")
       crud_ops.create(Resume)
      
     } 
