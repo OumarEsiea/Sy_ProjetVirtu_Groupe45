@@ -41,6 +41,19 @@ let getCards = async (id)=>{
         throw error;
     }
 }
+
+let getCries = async (pokemon)=>{
+    
+    try {
+        let sound = await fetch(`https://play.pokemonshowdown.com/audio/cries/${pokemon.Nom}.ogg`)
+        .then(response => response.url)
+        return sound
+        
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+        throw error;
+    }
+}
 /*
 let update = () =>{ //Non complété par manque de temps
     Axios.put()
@@ -52,5 +65,6 @@ export const crud_ops = {
     addDatabase,
     read,
     remove,
-    getCards
+    getCards,
+    getCries
 }
