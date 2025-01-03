@@ -12,15 +12,50 @@ CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
     Victoire INT NOT NULL,
     Defaite INT NOT NULL,
+    DefaitePartielle INT NOT NULL,
     BonnePaire INT NOT NULL,
-    FaussePaire INT NOT NULL,
+    FaussePaire INT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS victoire (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idGame INT NOT NULL,
     IdCarte1 INT NOT NULL,
     IdCarte2 INT NOT NULL,
     IdCarte3 INT NOT NULL,
-
+    CONSTRAINT GameIdVictoire FOREIGN KEY (idGame) REFERENCES games(id) ON DELETE CASCADE,
     CONSTRAINT fk_IdCarte1 FOREIGN KEY (IdCarte1) REFERENCES cards(id) ON DELETE CASCADE,
     CONSTRAINT fk_IdCarte2 FOREIGN KEY (IdCarte2) REFERENCES cards(id) ON DELETE CASCADE,
     CONSTRAINT fk_IdCarte3 FOREIGN KEY (IdCarte3) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS defaite (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idGame INT NOT NULL,
+    IdCarte1 INT NOT NULL,
+    IdCarte2 INT NOT NULL,
+    IdCarte3 INT NOT NULL,
+    IdCarte4 INT NOT NULL,
+    IdCarte5 INT NOT NULL,
+    IdCarte6 INT NOT NULL,
+    CONSTRAINT GameIdDefaite FOREIGN KEY (idGame) REFERENCES games(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte1 FOREIGN KEY (IdCarte1) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte2 FOREIGN KEY (IdCarte2) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte3 FOREIGN KEY (IdCarte3) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte4 FOREIGN KEY (IdCarte4) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte5 FOREIGN KEY (IdCarte5) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_IdCarte6 FOREIGN KEY (IdCarte6) REFERENCES cards(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS defaitePartielle (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idGame INT NOT NULL,
+    IdCarte1 INT NOT NULL,
+    IdCarte2 INT NOT NULL,
+    IdCarte3 INT NOT NULL,
+    CONSTRAINT fk_defaite_Partielle_IdCarte1 FOREIGN KEY (IdCarte1) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_Partielle_IdCarte2 FOREIGN KEY (IdCarte2) REFERENCES cards(id) ON DELETE CASCADE,
+    CONSTRAINT fk_defaite_Partielle_IdCarte3 FOREIGN KEY (IdCarte3) REFERENCES cards(id) ON DELETE CASCADE
 );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON crudgames.* TO 'test'@'%';
@@ -1329,4 +1364,5 @@ INSERT INTO cards (idpokemon, Nom, ImGSrc) VALUES
 (1299, 'pokemon_1299', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1299.png'),
 (1300, 'pokemon_1300', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1300.png'),
 (1301, 'pokemon_1301', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1301.png'),
-(1302, 'pokemon_1302', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1302.png');
+(1302, 'pokemon_1302', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1302.png'),
+(1303, 'pokemon_1303', 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Pok%C3%A9ball.png');

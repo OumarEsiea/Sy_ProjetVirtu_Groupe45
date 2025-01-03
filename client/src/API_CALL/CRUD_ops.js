@@ -6,10 +6,6 @@ let create = (obj) =>{
     return Axios.post('/register',obj)
 }
 
-let addDatabase = (obj)=>{
-    return Axios.post('/addDatabase',obj)
-}
-
 let read = async () => {
     try {
         const response = await Axios.get('/games');
@@ -34,7 +30,6 @@ let remove = (id) =>{
 let getCards = async (id)=>{
     try {
         const response = await Axios.get(`/pokemonList/${id}`);
-        //console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Erreur lors de la récupération des jeux :", error);
@@ -54,6 +49,27 @@ let getCries = async (pokemon)=>{
         throw error;
     }
 }
+
+let getErreur = async(id) => {
+    try {
+        const response = await Axios.get(`/Defaite/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+        throw error;
+    }
+}
+
+let getErreurPart = async (id) => {
+    try {
+        const response = await Axios.get(`/DefaitePart/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+        throw error;
+    }
+}
+
 /*
 let update = () =>{ //Non complété par manque de temps
     Axios.put()
@@ -62,9 +78,10 @@ let update = () =>{ //Non complété par manque de temps
 
 export const crud_ops = {
     create,
-    addDatabase,
     read,
     remove,
     getCards,
-    getCries
+    getCries,
+    getErreur,
+    getErreurPart
 }

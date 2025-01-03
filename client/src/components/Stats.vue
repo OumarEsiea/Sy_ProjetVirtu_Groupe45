@@ -8,6 +8,7 @@
         :id="game.id"
         :Victoire="game.Victoire"
         :Defaite="game.Defaite"
+        :DefaitePartielle="game.DefaitePartielle"
         :BonnePaire="game.BonnePaire"
         :FaussePaire="game.FaussePaire"
       />

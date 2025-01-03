@@ -70,7 +70,10 @@ export default{
   },
   Defaite(newValue){
     this.Defaite = newValue
-    console.log("Enregistrement de la défaite : "+this.Defaite)
+    this.Statistics()
+  },
+  DefaitePart(newValue){
+    this.DefaitePart = newValue
     this.Statistics()
   }
 },
@@ -83,6 +86,9 @@ export default{
             Indice_Previous : [],
             Paires_trouve : [],
             TmpTrouve : [],
+            WrongPaire : [],
+            IndiceFaux : [],
+            DefaitePartielle : [],
             ChargerJeu : false,
             Premier_choix : 0,
             Deuxieme_choix : 0,
@@ -93,10 +99,9 @@ export default{
             Paires : 0,
             Victoire : false,
             Defaite : false,
+            DefaitePart : false,
             PartieFinished : false,
             Decision : '',
-            WrongPaire : [],
-            IndiceFaux : [],
             MauvaisePaire : 0,
             blocage: false,
             NeedWatcher: true,
@@ -126,7 +131,7 @@ methods: {
 
   Init(){
     
-    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${Math.floor((Math.random() * 100) + 1)}&limit=${this.Jeu}`)
+    fetch(`https://pokeapi.co/api/v2/pokemon/?offset=${Math.floor((Math.random() * 300) + 1)}&limit=${this.Jeu}`)
           .then(res => res.json())
           .then(finalRes => {      
               const pokemons = finalRes.results.map(pokemon => fetch(pokemon.url)
@@ -181,6 +186,7 @@ if (this.Carte_Selec === 2) {
   if (this.Premier_choix === this.Deuxieme_choix) {
     this.Paires++;
     this.TmpTrouve.push(this.Premier_choix);
+    this.DefaitePartielle.push(this.Premier_choix)
     this.NeedWatcher = false
     this.game.forEach(card => {
       if (card.ImGSrc === this.Premier_choix) {
@@ -189,14 +195,29 @@ if (this.Carte_Selec === 2) {
     });
   } else {
     this.WrongPaire.push(this.Premier_choix,this.Deuxieme_choix)
-    this.IndiceFaux.push(this.Premier_choix)
+    this.IndiceFaux.push(this.Premier_choix,this.Deuxieme_choix)
+    this.DefaitePartielle.push(this.Premier_choix)
+
+switch(this.DefaitePartielle){
+
+  case this.DefaitePartielle[0] == this.DefaitePartielle[2] : 
+        this.DefaitePartielle[2] = this.Deuxieme_choix;
+        break;
+    case this.DefaitePartielle[0] == this.DefaitePartielle[1] :
+          this.DefaitePartielle[1] = this.Deuxieme_choix
+          break;
+    case this.DefaitePartielle[1] == this.DefaitePartielle[2] : 
+          this.DefaitePartielle[2] = this.Deuxieme_choix
+          break;
+    default :
+}
+
     this.MauvaisePaire++
     this.Vies--;
     this.Decision = "Mauvais";
 
     setTimeout(() => {
       this.WrongPaire.forEach(card => {
-          //console.log("Cartes incorrectes : "+card)
           card.isActive = true;
       });
       this.Decision = "";
@@ -210,15 +231,16 @@ if (this.Carte_Selec === 2) {
 if (this.Paires === 3) {
   this.PartieFinished = true;
   this.Victoire = true;
-  //this.Defaite = false
   this.AfficherPairesTrouvees();
 }
 
 if (this.Vies === 0) {
   this.PartieFinished = true;
   this.Defaite = true
-  //window.alert('Vous avez épuisé toutes vos tentatives.');
-  //location.reload();
+  setTimeout(()=>{
+    window.alert('Vous avez épuisé toutes vos tentatives.');
+    location.reload();
+  },3000)
 }
 },
 
@@ -226,7 +248,7 @@ if (this.Vies === 0) {
   this.TmpTrouve.forEach((paire, index) => {
     setTimeout(() => {
       this.Paires_trouve.push(paire)
-    }, index * 2000)
+    }, index * 2500)
   })
 },
 
@@ -244,8 +266,13 @@ async PokemonCry(pokemon){
     Timer(){
       this.horloge -- 
       if (this.horloge == -1){
-        window.alert('Temps imparti écoulé')
-        location.reload()
+      if((this.Victoire == false & this.Defaite == false) || (this.Paires <= 2 )){
+        this.DefaitePart = true
+      setTimeout(()=>{
+        window.alert('Vous avez épuisé toutes vos tentatives.');
+        location.reload();
+    },3000)
+      }
       }
     },
     
@@ -267,8 +294,10 @@ async PokemonCry(pokemon){
 
     Resume.Victoire = this.Victoire
     Resume.Defaite = this.Defaite
+    Resume.DefaitePartielle = this.DefaitePart
     Resume.BonnePaire = this.TmpTrouve.length
     Resume.FaussePaire = this.MauvaisePaire
+
     
     if(Resume.Victoire){
     for (let i = 0; i < this.TmpTrouve.length; i++) {
@@ -279,11 +308,17 @@ else if(Resume.Defaite) {
   for (let i = 0; i < this.IndiceFaux.length; i++) {
     Resume[`IdCarte${i + 1}`] = this.IndiceFaux[i].id;
   }
-
 }
-  console.log("Enregistrement dans la partie.",Resume)
-    crud_ops.create(Resume)
-   
+else if(this.DefaitePart){
+  for (let i = 0; i < this.DefaitePartielle.length; i++){
+
+    Resume[`IdCarte${i + 1}`] = this.DefaitePartielle[i].id;
+    if(Resume[`IdCarte${3}`] !== Number){
+    Resume[`IdCarte${3}`] = 1303
+  }
+  }
+}
+    crud_ops.create(Resume)  
   } 
 },
 }

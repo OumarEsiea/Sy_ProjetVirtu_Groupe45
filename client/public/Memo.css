@@ -54,6 +54,10 @@ ul {
     justify-content: center;
   }
 
+ul:first-letter{
+  text-transform: uppercase;
+}
+
 li {
     margin: 10px;
 }

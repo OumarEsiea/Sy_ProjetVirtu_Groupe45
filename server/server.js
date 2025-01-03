@@ -20,20 +20,56 @@ app.use(cors());
 app.post("/register", (req, res) => {
     const { Victoire } = req.body;
     const { Defaite } = req.body;
+    const { DefaitePartielle } = req.body;
     const { BonnePaire } = req.body;
     const { FaussePaire } = req.body
     const { IdCarte1 } = req.body
     const { IdCarte2 } = req.body
     const { IdCarte3 } = req.body
+    const { IdCarte4 } = req.body
+    const { IdCarte5 } = req.body
+    const { IdCarte6 } = req.body
 
-  console.log(req.body)
-
-  let sql = "INSERT INTO games (Victoire, Defaite, BonnePaire, FaussePaire, IdCarte1, IdCarte2, IdCarte3) VALUES (?,?,?,?,?,?,?)" //Adaptation des valeurs avec ma base de donnes
-  db.query(sql, [Victoire, Defaite, BonnePaire, FaussePaire, IdCarte1, IdCarte2, IdCarte3], (err,result) =>{
+  let sql = "INSERT INTO games (Victoire, Defaite, DefaitePartielle, BonnePaire, FaussePaire) VALUES (?,?,?,?,?)" //Adaptation des valeurs avec ma base de donnes
+  db.query(sql, [Victoire, Defaite, DefaitePartielle, BonnePaire, FaussePaire], (err,result) =>{
     if (err) {
         console.log(err);
     }else{
-        console.log(result);
+
+        let idGame = result.insertId
+        
+        if(Defaite == true){
+            
+            let sql = "INSERT INTO defaite (idGame, IdCarte1, IdCarte2, IdCarte3, IdCarte4, IdCarte5, IdCarte6) VALUES (?,?,?,?,?,?,?)"
+            db.query(sql, [idGame, IdCarte1, IdCarte2, IdCarte3, IdCarte4, IdCarte5, IdCarte6], (err,result) =>{
+                if (err) {
+                    console.log(err);
+                }else{
+                    console.log(result);
+                }
+              })
+        }
+        else if(Victoire == true){
+            let sql = "INSERT INTO victoire (idGame, IdCarte1, IdCarte2, IdCarte3) VALUES (?,?,?,?)"
+            db.query(sql, [idGame, IdCarte1, IdCarte2, IdCarte3], (err,result) =>{
+                if (err) {
+                    console.log(err);
+                }else{
+                    console.log(result);
+                }
+              })
+        }
+        else if( DefaitePartielle == true){
+
+                let sql = "INSERT INTO defaitePartielle (idGame, IdCarte1, IdCarte2, IdCarte3) VALUES (?,?,?,?)"
+                db.query(sql, [idGame, IdCarte1, IdCarte2, IdCarte3], (err,result) =>{
+                    if (err) {
+                        console.log(err);
+                    }else{
+                        console.log(result);
+                    }
+                  })   
+        }
     }
   })
 });
@@ -51,22 +87,82 @@ app.get("/games", (req, res) => {
 });
 
 app.get("/pokemonList/:id",(req,res)=>{
-    const { id } = req.params;
 
+    const idGame = req.params.id
+  
 let sql = `
     SELECT 
-        g.id, 
+        v.idGame, 
         c1.ImGSrc AS ImGSrcCarte1, 
         c2.ImGSrc AS ImGSrcCarte2, 
         c3.ImGSrc AS ImGSrcCarte3
-    FROM games g
-    JOIN cards c1 ON g.IdCarte1 = c1.id
-    JOIN cards c2 ON g.IdCarte2 = c2.id
-    JOIN cards c3 ON g.IdCarte3 = c3.id
-    WHERE g.id = ?
+    FROM victoire v
+    JOIN cards c1 ON v.IdCarte1 = c1.id
+    JOIN cards c2 ON v.IdCarte2 = c2.id
+    JOIN cards c3 ON v.IdCarte3 = c3.id
+    WHERE v.idGame = ?
 `;
 
-db.query(sql, [id], (err, result) => {
+db.query(sql, [idGame], (err, result) => {
+    if (err) {
+        console.error("Erreur lors de l'exécution de la requête :", err);
+        res.status(500).send("Erreur serveur");
+    } else {
+        res.send(result);
+    }
+    });
+})
+
+app.get("/Defaite/:id",(req,res)=>{
+    const { id } = req.params
+
+    let sql = `
+    SELECT 
+        d.idGame, 
+        c1.ImGSrc AS ImGSrcCarte1, 
+        c4.ImGSrc AS ImGSrcCarte4, 
+        c2.ImGSrc AS ImGSrcCarte2,
+        c5.ImGSrc AS ImGSrcCarte5, 
+        c3.ImGSrc AS ImGSrcCarte3,
+        c6.ImGSrc AS ImGSrcCarte6
+    FROM defaite d
+    JOIN cards c1 ON d.IdCarte1 = c1.id
+    JOIN cards c2 ON d.IdCarte2 = c2.id
+    JOIN cards c3 ON d.IdCarte3 = c3.id
+    JOIN cards c4 ON d.IdCarte4 = c4.id
+    JOIN cards c5 ON d.IdCarte5 = c5.id
+    JOIN cards c6 ON d.IdCarte6 = c6.id
+    WHERE d.idGame = ?
+    `;
+
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            console.error("Erreur lors de l'exécution de la requête :", err);
+            res.status(500).send("Erreur serveur");
+        } else {
+            res.send(result);
+        }
+        });
+})
+
+app.get("/DefaitePart/:id",(req,res)=>{
+    
+    const idGame = req.params.id
+    
+let sql = `
+    SELECT 
+        df.idGame, 
+        c1.ImGSrc AS ImGSrcCarte1, 
+        c2.ImGSrc AS ImGSrcCarte2, 
+        c3.ImGSrc AS ImGSrcCarte3
+    FROM defaitePartielle df
+    JOIN cards c1 ON df.IdCarte1 = c1.id
+    JOIN cards c2 ON df.IdCarte2 = c2.id
+    JOIN cards c3 ON df.IdCarte3 = c3.id
+    WHERE df.idGame = ?
+`;
+
+db.query(sql, [idGame], (err, result) => {
     if (err) {
         console.error("Erreur lors de l'exécution de la requête :", err);
         res.status(500).send("Erreur serveur");
@@ -81,6 +177,15 @@ app.delete("/delete/:index", (req,res) =>{
 
     let sql = "DELETE FROM games WHERE id = ?"
     db.query(sql, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+
+    let sql2 = "DELETE FROM victoire WHERE idGame = ?"
+    db.query(sql2, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+
+    let sql3 = "DELETE FROM defaite WHERE idGame = ?"
+    db.query(sql3, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+
+    let sql4 = "DELETE FROM defaitePartielle WHERE idGame = ?"
+    db.query(sql4, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
 })
 
 
