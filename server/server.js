@@ -172,21 +172,32 @@ db.query(sql, [idGame], (err, result) => {
     });
 })
 
-app.delete("/delete/:index", (req,res) =>{
-    const { index } = req.params
 
-    let sql = "DELETE FROM games WHERE id = ?"
-    db.query(sql, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+app.delete("/delete/:index", async (req, res) => {
+    const { index } = req.params; // 'index' correspond à l'id du jeu à supprimer
 
-    let sql2 = "DELETE FROM victoire WHERE idGame = ?"
-    db.query(sql2, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+    try {
+        // Supprimer dans la table 'games'
+        const sql = "DELETE FROM games WHERE id = ?";
+        db.query(sql, [index], (err, result) => {
+            if (err) {
+                console.error("Erreur lors de la suppression dans 'games':", err);
+                return res.status(500).send({ message: "Erreur lors de la suppression dans 'games'", error: err });
+            }
 
-    let sql3 = "DELETE FROM defaite WHERE idGame = ?"
-    db.query(sql3, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
+            // Vérifier si une suppression a eu lieu
+            if (result.affectedRows === 0) {
+                return res.status(404).send({ message: "Aucun jeu trouvé avec cet id" });
+            }
 
-    let sql4 = "DELETE FROM defaitePartielle WHERE idGame = ?"
-    db.query(sql4, [index], (err,result) =>{err ? console.log(err) : res.send(result)})
-})
+            // Grâce aux contraintes ON DELETE CASCADE, les lignes liées dans 'victoire', 'defaite' et 'defaitePartielle' seront automatiquement supprimées.
+            res.status(200).send({ message: "Le jeu et ses données associées ont été supprimés avec succès." });
+        });
+    } catch (err) {
+        console.error("Erreur lors de la suppression :", err);
+        res.status(500).send({ message: "Erreur serveur", error: err });
+    }
+});
 
 
 app.listen(3000, () =>

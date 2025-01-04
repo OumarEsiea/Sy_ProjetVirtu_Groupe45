@@ -2,13 +2,23 @@
   <div class="game-card">
     <div class="info">
       <h4>Victoire : {{ Victoire }}</h4>
-      <h4>Defaite : {{ Defaite }}</h4>
+      <h4 v-if="DefaitePartielle">Défaite : 1</h4>
+      <h4 v-else>Defaite : {{ Defaite }} </h4>
       <p>Nombre de bonnes Paires trouvées : {{ BonnePaire }}</p>
-      <p>Nombre de paires erronnées : {{ FaussePaire }}</p>
+      <p>Nombre de paires erronées : {{ FaussePaire }}</p>
       <p>id : {{ id }}</p>
       <button @click="GetCards">Cartes</button>
       <div class="flex-containerCard">
-        <div
+        <div v-if="Defaite">
+          <p>Liste des paires erronnées</p>
+            <div v-for="(groupe, groupeIndex) in tabCartesParGroupes" :key="groupeIndex" class="flex-itemCard-group">
+              <p>Paire {{ groupeIndex+1 }}</p>
+                <div v-for="(Image, index) in groupe" :key="index" class="flex-itemCard">
+                  <img :src="Image" alt="Image de carte" />
+                </div>
+            </div>
+        </div>
+        <div v-else
           v-for="(Image, index) in tabCartes" :key="index" class="flex-itemCard">
           <img :src="Image" alt="Image de carte" />
         </div>
@@ -27,13 +37,13 @@ export default {
     id: { type: Number, required: true },
     Victoire: { type: Boolean },
     Defaite: { type: Boolean },
-    DefaitePartielle: {type : Boolean},
+    DefaitePartielle: { type: Boolean },
     BonnePaire: { type: Number },
     FaussePaire: { type: Number },
   },
   data() {
     return {
-      tabCartes: [], // Tableau contenant les images
+      tabCartes: [],
     };
   },
   methods: {
@@ -54,10 +64,9 @@ export default {
             gameData.ImGSrcCarte6,
           ];
         }
-      }
-      else if(this.DefaitePartielle){
-      const response = await crud_ops.getErreurPart(this.id);
-      if (response && response.length > 0) {
+      } else if (this.DefaitePartielle) {
+        const response = await crud_ops.getErreurPart(this.id);
+        if (response && response.length > 0) {
           const gameData = response[0];
           this.tabCartes = [
             gameData.ImGSrcCarte1,
@@ -65,8 +74,7 @@ export default {
             gameData.ImGSrcCarte3,
           ];
         }
-        }
-      else if(this.Victoire) {
+      } else if (this.Victoire) {
         const response = await crud_ops.getCards(this.id);
         if (response && response.length > 0) {
           const gameData = response[0];
@@ -77,6 +85,18 @@ export default {
           ];
         }
       }
+    },
+    splitIntoChunks(array, chunkSize) {
+      const chunks = [];
+      for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize));
+      }
+      return chunks;
+    },
+  },
+  computed: {
+    tabCartesParGroupes() {
+      return this.splitIntoChunks(this.tabCartes, 2);
     },
   },
 };
@@ -109,21 +129,27 @@ button {
 
 .flex-containerCard {
   display: flex;
-  flex-wrap: wrap; /* Les cartes passent à la ligne si nécessaire */
-  gap: 10px; /* Espacement entre les éléments */
-  justify-content: center; /* Alignement horizontal */
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center; 
   align-items: center;
-  max-height: 300px; /* Limite la hauteur visible */
-  overflow-y: auto; /* Permet le scroll vertical */
-  padding: 10px;
+  max-height: 300px; 
+  overflow-y: auto;
+  padding: 5px;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 5px;
 }
 
+.flex-itemCard-group {
+  display: flex;
+  gap: 5px; 
+  margin-bottom: 5px;
+}
+
 .flex-itemCard {
-  width: 50px; /* Taille des cartes */
-  height: 50px;
+  width: 55px;
+  height: 55px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -134,5 +160,7 @@ button {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain; /* Garde les proportions */
+  margin: 0; /* Enlève tout espace ajouté autour des images */
 }
+
 </style>
