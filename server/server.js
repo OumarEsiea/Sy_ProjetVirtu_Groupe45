@@ -4,7 +4,6 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 
-const filePath = path.join(__dirname, '/index.html');
 //Inspiré du LAB6
 
 const db = mysql.createPool({
@@ -172,6 +171,97 @@ db.query(sql, [idGame], (err, result) => {
     });
 })
 
+             
+app.get('/Recap/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Récupérer les informations de base du jeu
+        let sqlGame = "SELECT * FROM games WHERE id = ?";
+        db.query(sqlGame, [id], (err, gamesResult) => {
+            if (err) {
+                console.error("Erreur lors de la récupération des données du jeu :", err);
+                return res.status(500).send("Erreur serveur");
+            }
+
+            if (gamesResult.length === 0) {
+                return res.status(404).send("Aucun jeu trouvé avec cet ID.");
+            }
+
+            const game = gamesResult[0];
+
+            if (game.Victoire) {
+                let sqlVictoire = `
+                    SELECT IdCarte1, IdCarte2, IdCarte3
+                    FROM victoire
+                    WHERE idGame = ?
+                `;
+                db.query(sqlVictoire, [id], (err, victoireResult) => {
+                    if (err) {
+                        console.error("Erreur lors de la récupération des données de victoire :", err);
+                        return res.status(500).send("Erreur serveur");
+                    }
+                    res.send({ type: "Victoire", details: victoireResult });
+                });
+            } else if (game.Defaite) {
+                let sqlDefaite = `
+                    SELECT IdCarte1, IdCarte2, IdCarte3, IdCarte4, IdCarte5, IdCarte6
+                    FROM defaite
+                    WHERE idGame = ?
+                `;
+                db.query(sqlDefaite, [id], (err, defaiteResult) => {
+                    if (err) {
+                        console.error("Erreur lors de la récupération des données de défaite :", err);
+                        return res.status(500).send("Erreur serveur");
+                    }
+                    res.send({ type: "Défaite", details: defaiteResult });
+                });
+            } else if (game.DefaitePartielle) {
+                let sqlDefaitePartielle = `
+                    SELECT IdCarte1, IdCarte2, IdCarte3
+                    FROM defaitePartielle
+                    WHERE idGame = ?
+                `;
+                db.query(sqlDefaitePartielle, [id], (err, defaitePartielleResult) => {
+                    if (err) {
+                        console.error("Erreur lors de la récupération des données de défaite partielle :", err);
+                        return res.status(500).send("Erreur serveur");
+                    }
+                    res.send({ type: "Défaite Partielle", details: defaitePartielleResult });
+                });
+            } else {
+                res.status(400).send("Type de jeu non reconnu.");
+            }
+        });
+    } catch (err) {
+        console.error("Erreur serveur :", err);
+        res.status(500).send("Erreur serveur");
+    }
+});
+
+app.get("/GetWins",(req,res)=>{
+    let sql =`
+    SELECT COUNT(*) AS Victoire FROM games WHERE Victoire = 1`;
+    db.query(sql, (err,result) =>{
+        if (err) {
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    })
+})
+
+app.get("/GetLosses",(req,res)=>{
+    let sql =`
+    SELECT COUNT(*) AS Defaite FROM games WHERE defaite = 1 AND defaitePartielle = 1`;
+    db.query(sql, (err,result) =>{
+        if (err) {
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    })
+})
 
 app.delete("/delete/:index", async (req, res) => {
     const { index } = req.params; // 'index' correspond à l'id du jeu à supprimer

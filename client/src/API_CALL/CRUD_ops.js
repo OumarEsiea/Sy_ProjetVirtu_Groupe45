@@ -70,6 +70,33 @@ let getErreurPart = async (id) => {
     }
 }
 
+let getRecap = async (id) => {
+    try {
+        const response = await Axios.get(`/Recap/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+        throw error;
+    }
+}
+
+let getWS = async ()=>{
+    try {
+        const response = await Axios.get('/GetWins');
+        return response.data[0].Victoire;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+    }
+}
+
+let getLoss = async ()=>{
+    try {
+        const response = await Axios.get('/GetLosses');
+        return response.data[0].Defaite;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des jeux :", error);
+    }
+}
 /*
 let update = () =>{ //Non complété par manque de temps
     Axios.put()
@@ -83,5 +110,8 @@ export const crud_ops = {
     getCards,
     getCries,
     getErreur,
-    getErreurPart
+    getErreurPart,
+    getRecap,
+    getWS,
+    getLoss
 }

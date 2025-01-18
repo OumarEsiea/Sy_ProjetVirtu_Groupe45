@@ -20,14 +20,19 @@
 
         </section>
     </main>
+    <Footer></Footer>
 </template>
 
 <script>
 import GamePlay from './GamePlay.vue';
+import Footer from './Footer.vue'
 
 export default {
     name: 'GameConfig',
-    components: { GamePlay },
+    components: { 
+        GamePlay,
+        Footer
+     },
     data() {
         return {
             Taille_Jeu: '',

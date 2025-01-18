@@ -1,20 +1,13 @@
-# Étape 1 : Utilisation d'une image Node.js officielle
 FROM node:18
 
-# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers package.json et yarn.lock dans le conteneur
 COPY package.json yarn.lock ./
 
-# Installer les dépendances avec Yarn
 RUN yarn install
 
-# Copier tout le reste du code source dans le conteneur
 COPY . .
 
-# Exposer le port sur lequel le serveur de développement va tourner
 EXPOSE 8080
 
-# Commande pour lancer le serveur de développement Vue.js
 CMD ["yarn", "serve"]
